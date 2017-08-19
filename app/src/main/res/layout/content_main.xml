@@ -19,11 +19,4 @@
         android:scaleType="fitStart"
         android:src="@drawable/a0" />
 
-    <com.example.mark.loadtensorflowmodeltest.widget.InfoImageView
-        android:id="@+id/image_crop"
-        android:layout_width="416px"
-        android:layout_height="416px"
-        android:background="#FF0000"
-        android:scaleType="fitStart" />
-
 </LinearLayout>
