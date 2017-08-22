@@ -1,18 +1,17 @@
-package com.example.mark.loadtensorflowmodeltest;
+package com.beyondsw.palette;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Xfermode;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -27,8 +26,7 @@ public class PaletteView extends View {
     public static final int MNIST_SIZE = 28;
     private Paint mPaint;
     private Path mPath;
-    private Path mPathScale = new Path();
-    RectF mRectBounds = new RectF();
+
     private float mLastX;
     private float mLastY;
     private Bitmap mBufferBitmap;
@@ -36,6 +34,7 @@ public class PaletteView extends View {
 
     private Bitmap mBufferBitmapMnist;
     private Canvas mBufferCanvasMnist;
+    private RectF mContentRectF = new RectF();
 
     private static final int MAX_CACHE_STEP = 20;
 
@@ -81,8 +80,8 @@ public class PaletteView extends View {
         mPaint.setFilterBitmap(true);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mDrawSize = 20;
-        mEraserSize = 40;
+        mDrawSize = 40;
+        mEraserSize = mDrawSize * 2;
         mPaint.setStrokeWidth(mDrawSize);
         mPaint.setColor(0XFF00FF00);
 
@@ -95,6 +94,7 @@ public class PaletteView extends View {
 
         mBufferBitmapMnist = Bitmap.createBitmap(MNIST_SIZE, MNIST_SIZE, Bitmap.Config.ALPHA_8);
         mBufferCanvasMnist = new Canvas(mBufferBitmapMnist);
+
     }
 
     private abstract static class DrawingInfo {
@@ -212,8 +212,21 @@ public class PaletteView extends View {
     }
 
     public Bitmap buildBitmap() {
-        Bitmap result = Bitmap.createBitmap(mBufferBitmapMnist);
-        return result;
+        mBufferBitmapMnist.eraseColor(Color.TRANSPARENT);
+
+        Rect rect = new Rect();
+        rect.left = (int) mContentRectF.left;
+        rect.top = (int) mContentRectF.top;
+        rect.right = (int) mContentRectF.right;
+        rect.bottom = (int) mContentRectF.bottom;
+
+
+        RectF dst = new RectF();
+        dst.right = MNIST_SIZE;
+        dst.bottom = MNIST_SIZE;
+
+        mBufferCanvasMnist.drawBitmap(mBufferBitmap, rect, dst, new Paint());
+        return Bitmap.createBitmap(mBufferBitmapMnist);
     }
 
     private void saveDrawingPath(){
@@ -234,15 +247,31 @@ public class PaletteView extends View {
         }
     }
 
+    private void updateContentRect() {
+        mContentRectF.set(Float.MAX_VALUE, Float.MAX_VALUE, 0, 0);
+        if (mDrawingList != null && mDrawingList.size() > 0) {
+            for (DrawingInfo info : mDrawingList) {
+                PathDrawingInfo pathInfo = (PathDrawingInfo) info;
+                RectF currentRectF = new RectF();
+                pathInfo.path.computeBounds(currentRectF, false);
+
+                mContentRectF.left = currentRectF.left < mContentRectF.left ? currentRectF.left : mContentRectF.left;
+
+                mContentRectF.top = currentRectF.top < mContentRectF.top ? currentRectF.top : mContentRectF.top;
+
+                mContentRectF.right = currentRectF.right > mContentRectF.right ? currentRectF.right : mContentRectF.right;
+
+                mContentRectF.bottom = currentRectF.bottom > mContentRectF.bottom ? currentRectF.bottom : mContentRectF.bottom;
+            }
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         if (mBufferBitmap != null) {
             canvas.drawBitmap(mBufferBitmap, 0, 0, null);
         }
 
-        if (mBufferBitmapMnist != null) {
-            canvas.drawBitmap(mBufferBitmapMnist, 0, 0, null);
-        }
     }
 
     @Override
@@ -252,7 +281,6 @@ public class PaletteView extends View {
         final float y = event.getY();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                mRectBounds.set(0,0,0,0);
                 mLastX = x;
                 mLastY = y;
                 if (mPath == null) {
@@ -270,7 +298,6 @@ public class PaletteView extends View {
                     break;
                 }
                 mBufferCanvas.drawPath(mPath,mPaint);
-                //mBufferCanvasMnist.drawPath(mPath,mPaint);
                 invalidate();
                 mLastX = x;
                 mLastY = y;
@@ -278,45 +305,12 @@ public class PaletteView extends View {
             case MotionEvent.ACTION_UP:
                 if (mMode == Mode.DRAW || mCanEraser) {
                     saveDrawingPath();
+                    updateContentRect();
                 }
 
-
-
-                Paint mPaintBounds = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-                mPaintBounds.setStyle(Paint.Style.STROKE);
-                mPaintBounds.setFilterBitmap(true);
-                mPaintBounds.setStrokeWidth(1);
-                mPaintBounds.setColor(0XFFff0000);
-
-                mPath.computeBounds(mRectBounds, false);
-
-                float[] percent = percentToTarget(mRectBounds.width(), mRectBounds.height(), MNIST_SIZE);
-
-                Matrix matrix = new Matrix();
-
-                matrix.setScale(percent[0], percent[1], 0, 0);
-
-
-                mPath.transform(matrix, mPathScale);
-
-                mPathScale.computeBounds(mRectBounds, false);
-                Log.v("MotionEvent.ACTION_UP","r1:"+mRectBounds);
-
-
-
-                mPathScale.offset(-mRectBounds.left, -mRectBounds.top);
-                mPathScale.computeBounds(mRectBounds, false);
-                Log.v("MotionEvent.ACTION_UP","r1:"+mRectBounds);
-
-
-
-                mPaintBounds.setColor(0XFFFFFFFF);
-                mBufferCanvasMnist.drawPath(mPathScale, mPaintBounds);
-
-
-                postInvalidate();
-
+                //mBufferCanvas.drawRect(mContentRectF, mPaint);
                 mPath.reset();
+                postInvalidate();
                 break;
         }
         return true;

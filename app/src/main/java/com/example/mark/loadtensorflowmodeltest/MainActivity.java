@@ -5,23 +5,29 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.beyondsw.palette.PaletteView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String NOTMNIST_MODEL_FILE = "file:///android_asset/not-mnist-a-j-tf1.2.pb";
 
     private TensorFlowYoloDetector mDetector;
     private TextView mTextView;
+    private TextView mTextViewMs;
     private PaletteView mPaletteView;
+    private ImageView mImagePreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView)findViewById(R.id.text);
+        mTextViewMs = (TextView)findViewById(R.id.text_time);
         mPaletteView = (PaletteView)findViewById(R.id.palette);
+        mImagePreview = (ImageView) findViewById(R.id.image_preview);
 
         findViewById(R.id.undo).setOnClickListener(this);
         findViewById(R.id.redo).setOnClickListener(this);
@@ -44,9 +50,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     final Bitmap bitmap = mPaletteView.buildBitmap();
 
+                    mImagePreview.setImageBitmap(bitmap);
+
                     String charString = mDetector.decodeBitmap(bitmap);
 
-                    mTextView.setText(String.format("解析用时间:(%d)毫秒, 字符为:(%s)", (System.currentTimeMillis()-start), charString));
+                    mTextView.setText(String.format("= %s", charString));
+                    mTextViewMs.setText(String.format("(%s)ms", String.valueOf(System.currentTimeMillis() - start)));
                 } catch (Exception e) {
                     e.printStackTrace();
                     mTextView.setText(e.getMessage());
