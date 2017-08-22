@@ -18,8 +18,6 @@ public class TensorFlowYoloDetector {
     };
     private String inputName;
     private int inputSize;
-    private int[] intValues;
-    private float[] floatValues;
     private String[] outputNames;
 
     private TensorFlowInferenceInterface inferenceInterface;
@@ -39,40 +37,23 @@ public class TensorFlowYoloDetector {
 
         // Pre-allocate buffers.
         d.outputNames = outputName.split(",");
-        d.intValues = new int[inputSize * inputSize];
-        d.floatValues = new float[inputSize * inputSize];
-
-
         d.inferenceInterface = new TensorFlowInferenceInterface(assetManager, modelFilename);
         return d;
     }
 
 
     public String decodeBitmap(final Bitmap bitmap) throws Exception{
-
         ByteBuffer buffer = ByteBuffer.allocate(bitmap.getHeight() * bitmap.getRowBytes());
         bitmap.copyPixelsToBuffer(buffer);
-
         byte[] bytes = buffer.array();
 
-        for(int i=0;i<intValues.length;i++){
-            Byte bb = bytes[i];
-            intValues[i]=bb.intValue();
-        }
-
-
-        //bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-
-
-        float[] floatValues = normalizedPixels(intValues, bitmap.getWidth(), bitmap.getHeight());
+        float[] floatValues = normalizedPixels(bytes, bitmap.getWidth(), bitmap.getHeight());
 
         inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 1);
         inferenceInterface.run(outputNames, false);
 
         final float[] output = new float[10];
         inferenceInterface.fetch(outputNames[0], output);
-
 
         return labels[argmax(output)];
     }
@@ -112,7 +93,7 @@ public class TensorFlowYoloDetector {
      * @param height 高度
      * @return 正则后数据 -0.5~0.5
      */
-    private float[] normalizedPixels(int[] pixels, int width, int height) {
+    private float[] normalizedPixels(byte[] pixels, int width, int height) {
         float[] floatValues = new float[width * height];
         for (int i = 0; i < pixels.length; ++i) {
             floatValues[i] = byteToGary(pixels[i]);
@@ -133,5 +114,7 @@ public class TensorFlowYoloDetector {
         return pixelsElement;
     }
 
-    //inferenceInterface.close();
+    protected void onDestroy() {
+        inferenceInterface.close();
+    }
 }
