@@ -6,10 +6,9 @@ import android.graphics.Bitmap;
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 
-public class TensorFlowYoloDetector {
+public class TensorFlowDetector {
     private String[] labels = new String[]{
             "A", "B", "C",
             "D", "E", "F",
@@ -22,16 +21,16 @@ public class TensorFlowYoloDetector {
 
     private TensorFlowInferenceInterface inferenceInterface;
 
-    private TensorFlowYoloDetector() {
+    private TensorFlowDetector() {
     }
 
-    public static TensorFlowYoloDetector create(
+    public static TensorFlowDetector create(
             final AssetManager assetManager,
             final String modelFilename,
             final int inputSize,
             final String inputName,
             final String outputName) {
-        TensorFlowYoloDetector d = new TensorFlowYoloDetector();
+        TensorFlowDetector d = new TensorFlowDetector();
         d.inputName = inputName;
         d.inputSize = inputSize;
 

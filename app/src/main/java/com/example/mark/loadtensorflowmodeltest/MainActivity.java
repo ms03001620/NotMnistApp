@@ -14,7 +14,7 @@ import com.beyondsw.palette.PaletteView;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String NOTMNIST_MODEL_FILE = "file:///android_asset/not-mnist-a-j-tf1.2.pb";
 
-    private TensorFlowYoloDetector mDetector;
+    private TensorFlowDetector mDetector;
     private TextView mTextView;
     private TextView mTextViewMs;
     private PaletteView mPaletteView;
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        mDetector = TensorFlowYoloDetector.create(getAssets(), NOTMNIST_MODEL_FILE, 28, "input", "out_softmax");
+        mDetector = TensorFlowDetector.create(getAssets(), NOTMNIST_MODEL_FILE, 28, "input", "out_softmax");
     }
 
     public void onClick(View v) {

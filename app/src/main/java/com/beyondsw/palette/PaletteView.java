@@ -80,7 +80,7 @@ public class PaletteView extends View {
         mPaint.setFilterBitmap(true);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mDrawSize = 40;
+        mDrawSize = 20;
         mEraserSize = mDrawSize * 2;
         mPaint.setStrokeWidth(mDrawSize);
         mPaint.setColor(0XFF00FF00);
