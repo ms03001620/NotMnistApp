@@ -5,6 +5,9 @@ import android.graphics.Bitmap;
 
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 
 public class TensorFlowYoloDetector {
     private String[] labels = new String[]{
@@ -46,7 +49,21 @@ public class TensorFlowYoloDetector {
 
 
     public String decodeBitmap(final Bitmap bitmap) throws Exception{
-        bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        ByteBuffer buffer = ByteBuffer.allocate(bitmap.getHeight() * bitmap.getRowBytes());
+        bitmap.copyPixelsToBuffer(buffer);
+
+        byte[] bytes = buffer.array();
+
+        for(int i=0;i<intValues.length;i++){
+            Byte bb = bytes[i];
+            intValues[i]=bb.intValue();
+        }
+
+
+        //bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+
 
         float[] floatValues = normalizedPixels(intValues, bitmap.getWidth(), bitmap.getHeight());
 
