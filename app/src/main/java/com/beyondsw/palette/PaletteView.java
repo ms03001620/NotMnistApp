@@ -81,7 +81,7 @@ public class PaletteView extends View {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mDrawSize = 20;
-        mEraserSize = mDrawSize * 2;
+        mEraserSize = mDrawSize * 10;
         mPaint.setStrokeWidth(mDrawSize);
         mPaint.setColor(0XFF00FF00);
 
@@ -214,18 +214,20 @@ public class PaletteView extends View {
     public Bitmap buildBitmap() {
         mBufferBitmapMnist.eraseColor(Color.TRANSPARENT);
 
+
+        RectF fixedRect = new RectF(mContentRectF);//fixWh(mContentRectF);
         Rect rect = new Rect();
-        rect.left = (int) mContentRectF.left;
-        rect.top = (int) mContentRectF.top;
-        rect.right = (int) mContentRectF.right;
-        rect.bottom = (int) mContentRectF.bottom;
+        rect.left = (int) fixedRect.left;
+        rect.top = (int) fixedRect.top;
+        rect.right = (int) fixedRect.right;
+        rect.bottom = (int) fixedRect.bottom;
 
 
         RectF dst = new RectF();
         dst.right = MNIST_SIZE;
         dst.bottom = MNIST_SIZE;
 
-        mBufferCanvasMnist.drawBitmap(mBufferBitmap, rect, dst, new Paint());
+        mBufferCanvasMnist.drawBitmap(mBufferBitmap, rect, dst, mPaint);
         return Bitmap.createBitmap(mBufferBitmapMnist);
     }
 
@@ -338,5 +340,28 @@ public class PaletteView extends View {
 
     private static float getTimes(float targetSize, float max) {
         return Math.round((max / targetSize) * 10) / 10f;
+    }
+
+    private static RectF fixWh(RectF rect){
+        RectF result = new RectF(rect);
+
+        float w = rect.width();
+        float h = rect.height();
+
+        if(w==h){
+            return rect;
+        }
+
+        float more = Math.abs(w-h);
+
+        if(w>h){
+            result.top-=more/2;
+            result.bottom+=more;
+        }else{
+            result.left-=more/2;
+            result.right+=more;
+        }
+
+        return result;
     }
 }
