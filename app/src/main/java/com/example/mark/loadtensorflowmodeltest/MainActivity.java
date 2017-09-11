@@ -8,8 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.beyondsw.palette.PaletteView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String NOTMNIST_MODEL_FILE = "file:///android_asset/not-mnist-a-j-tf1.2.pb";
@@ -19,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mTextViewMs;
     private PaletteView mPaletteView;
     private ImageView mImagePreview;
+    private Bitmap mCurrentBitmap28x28;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +52,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ALPHA_8;
 
-                    //final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.b0, options);
+                    mCurrentBitmap28x28 = mPaletteView.buildBitmap();
 
-                    final Bitmap bitmap = mPaletteView.buildBitmap();
+                    mImagePreview.setImageBitmap(mCurrentBitmap28x28);
 
-                    mImagePreview.setImageBitmap(bitmap);
-
-                    String charString = mDetector.decodeBitmap(bitmap);
+                    String charString = mDetector.decodeBitmap(mCurrentBitmap28x28);
 
                     mTextView.setText(String.format("= %s", charString));
                     mTextViewMs.setText(String.format("(%s)ms", String.valueOf(System.currentTimeMillis() - start)));
@@ -63,7 +67,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if(mCurrentBitmap28x28!=null){
+                    saveBitmap(mCurrentBitmap28x28, "");
+                }
+
+                return false;
+            }
+        });
+
         mDetector = TensorFlowDetector.create(getAssets(), NOTMNIST_MODEL_FILE, 28, "input", "out_softmax");
+    }
+
+    private void saveBitmap(Bitmap bmp, String filename){
+        //adb pull /data/data/com.example.mark.loadtensorflowmodeltest/files .
+
+        File file = getFilesDir();
+
+        filename = file.getPath() + "/" + System.currentTimeMillis() + ".png";
+
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(filename);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+            Toast.makeText(this, "Save", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void onClick(View v) {
