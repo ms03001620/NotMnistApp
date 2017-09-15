@@ -70,9 +70,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+/*
                 if(mCurrentBitmap28x28!=null){
                     saveBitmap(mCurrentBitmap28x28, "");
                 }
+*/
+
+
+                Bitmap testBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+
+                String saveTo = getFilesDir().getPath()+"/sample_text.bmp";
+                AndroidBmpUtil bmpUtil = new AndroidBmpUtil();
+                bmpUtil.save(testBitmap, saveTo);
+
+
+                //Bitmap bitmap = AndroidBmpUtil.toGrayscale(testBitmap);
+                //saveBitmap(bitmap, "");
+
+
 
                 return false;
             }
