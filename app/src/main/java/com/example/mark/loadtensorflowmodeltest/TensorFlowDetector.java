@@ -20,6 +20,7 @@ public class TensorFlowDetector {
     private int inputSize;
     private String[] outputNames;
 
+    //tensorflow/tensorflow/contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java
     private TensorFlowInferenceInterface inferenceInterface;
 
     private TensorFlowDetector() {
@@ -63,6 +64,7 @@ public class TensorFlowDetector {
         bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
         float[] floatValues = normalizedPixels(pixels, bitmap.getWidth(), bitmap.getHeight());
 
+        inferenceInterface.feed("keep", new float[]{1f});
         inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 1);
         inferenceInterface.run(outputNames, false);
 
