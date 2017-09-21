@@ -1,10 +1,9 @@
 package com.example.mark.loadtensorflowmodeltest;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,12 +15,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends Activity implements View.OnClickListener{
     private static final String NOTMNIST_MODEL_FILE = "file:///android_asset/not-mnist-a-j-tf1.2_9718.pb";
 
     private TensorFlowDetector mDetector;
     private TextView mTextView;
-    private TextView mTextViewMs;
     private PaletteView mPaletteView;
     private ImageView mImagePreview;
     private Bitmap mCurrentBitmap28x28;
@@ -31,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView)findViewById(R.id.text);
-        mTextViewMs = (TextView)findViewById(R.id.text_time);
         mPaletteView = (PaletteView)findViewById(R.id.palette);
         mImagePreview = (ImageView) findViewById(R.id.image_preview);
 
@@ -40,14 +37,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.pen).setOnClickListener(this);
         findViewById(R.id.eraser).setOnClickListener(this);
         findViewById(R.id.clear).setOnClickListener(this);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        View fab = findViewById(R.id.feed);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                long start = System.currentTimeMillis();
-
                 try {
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ALPHA_8;
@@ -59,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String charString = mDetector.decodeBitmap(mCurrentBitmap28x28);
 
                     mTextView.setText(String.format("= %s", charString));
-                    mTextViewMs.setText(String.format("(%s)ms", String.valueOf(System.currentTimeMillis() - start)));
                 } catch (Exception e) {
                     e.printStackTrace();
                     mTextView.setText(e.getMessage());
@@ -70,25 +63,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-/*
                 if(mCurrentBitmap28x28!=null){
                     saveBitmap(mCurrentBitmap28x28, "");
                 }
-*/
-
-
-                Bitmap testBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-
-                String saveTo = getFilesDir().getPath()+"/sample_text.bmp";
-                AndroidBmpUtil bmpUtil = new AndroidBmpUtil();
-                bmpUtil.save(testBitmap, saveTo);
-
-
-                //Bitmap bitmap = AndroidBmpUtil.toGrayscale(testBitmap);
-                //saveBitmap(bitmap, "");
-
-
-
                 return false;
             }
         });
