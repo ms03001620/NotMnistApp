@@ -3,6 +3,7 @@ package com.example.mark.loadtensorflowmodeltest;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
@@ -10,12 +11,6 @@ import java.nio.ByteBuffer;
 
 
 public class TensorFlowDetector {
-    private String[] labels = new String[]{
-            "A", "B", "C",
-            "D", "E", "F",
-            "G", "H", "I",
-            "J"
-    };
     private String inputName;
     private int inputSize;
     private String[] outputNames;
@@ -43,22 +38,6 @@ public class TensorFlowDetector {
     }
 
 
-    public String decodeBitmapV1(final Bitmap bitmap) throws Exception{
-        ByteBuffer buffer = ByteBuffer.allocate(bitmap.getHeight() * bitmap.getRowBytes());
-        bitmap.copyPixelsToBuffer(buffer);
-        byte[] bytes = buffer.array();
-
-        float[] floatValues = normalizedPixels(bytes, bitmap.getWidth(), bitmap.getHeight());
-
-        inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 1);
-        inferenceInterface.run(outputNames, false);
-
-        final float[] output = new float[10];
-        inferenceInterface.fetch(outputNames[0], output);
-
-        return labels[argmax(output)];
-    }
-
     public String decodeBitmap(final Bitmap bitmap) throws Exception{
         int pixels[] = new int[bitmap.getHeight()* bitmap.getWidth()];
         bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -68,39 +47,13 @@ public class TensorFlowDetector {
         inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 1);
         inferenceInterface.run(outputNames, false);
 
-        final float[] output = new float[10];
-        inferenceInterface.fetch(outputNames[0], output);
+        TensorflowResult result = new TensorflowResult();
+        inferenceInterface.fetch(outputNames[0], result.getOutput());
 
-        return labels[argmax(output)];
+        Log.v("TensorFlowDetector", result.toString());
+        return result.getTopInfo();
     }
 
-    private int argmax(float[] array){
-        int index = 0;
-        float largest = Integer.MIN_VALUE;
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] > largest) {
-                largest = array[i];
-                index = i;
-            }
-        }
-        return index;
-    }
-
-
-    //     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
-    //     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
-    //     2.    0. 185. 192.  0.    2.    0.    0.
-
-
-    //19 = 0
-    //20 = 33686018
-    //21 = 0
-    //22 = -1179010631
-    //23 = -1061109568
-    //24 = 0
-    //25 = 33686018
-    //26 = 0
-    //27 = 0
 
     /**
      * 正则化数据，均值为0，标准差为0.5
