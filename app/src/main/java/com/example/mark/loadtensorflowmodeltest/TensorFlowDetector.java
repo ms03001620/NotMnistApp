@@ -39,9 +39,11 @@ public class TensorFlowDetector {
 
 
     public String decodeBitmap(final Bitmap bitmap) throws Exception{
-        int pixels[] = new int[bitmap.getHeight()* bitmap.getWidth()];
-        bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-        float[] floatValues = normalizedPixels(pixels, bitmap.getWidth(), bitmap.getHeight());
+        ByteBuffer buffer = ByteBuffer.allocate(bitmap.getHeight() * bitmap.getRowBytes());
+        bitmap.copyPixelsToBuffer(buffer);
+        byte[] bytes = buffer.array();
+
+        float[] floatValues = normalizedPixels(bytes, bitmap.getWidth(), bitmap.getHeight());
 
         inferenceInterface.feed("keep", new float[]{1f});
         inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 1);
