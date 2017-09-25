@@ -215,7 +215,7 @@ public class PaletteView extends View {
         mBufferBitmapMnist.eraseColor(Color.TRANSPARENT);
 
 
-        RectF fixedRect = new RectF(mContentRectF);//fixWh(mContentRectF);
+        RectF fixedRect = fixWh(mContentRectF);
         Rect rect = new Rect();
         rect.left = (int) fixedRect.left;
         rect.top = (int) fixedRect.top;
@@ -348,18 +348,15 @@ public class PaletteView extends View {
         float w = rect.width();
         float h = rect.height();
 
-        if(w==h){
-            return rect;
-        }
 
         float more = Math.abs(w-h);
 
         if(w>h){
+            result.bottom+=more/2;
             result.top-=more/2;
-            result.bottom+=more;
         }else{
+            result.right+=more/2;
             result.left-=more/2;
-            result.right+=more;
         }
 
         return result;
