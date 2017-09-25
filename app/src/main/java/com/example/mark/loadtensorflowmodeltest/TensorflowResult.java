@@ -1,6 +1,10 @@
 package com.example.mark.loadtensorflowmodeltest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by mark on 2017/9/21.
@@ -36,11 +40,28 @@ public class TensorflowResult {
         return index;
     }
 
-    public String getTopInfo() {
+    public String getTopInfo2() {
         int topIndex = argmax(output);
         String label = labels[topIndex];
         float accuracy = output[topIndex];
         return label + ", " + (String.valueOf(accuracy));
+    }
+
+    public String getTopInfo() {
+        List<SortData> data1 = sort();
+
+        SortData No1 = data1.get(0);
+        SortData No2 = data1.get(1);
+
+        StringBuffer sb = new StringBuffer();
+        sb.append(labels[No1.index]);
+        sb.append("("+No1.accuracy+")");
+
+        sb.append("\n");
+        sb.append(labels[No2.index]);
+        sb.append("("+No2.accuracy+")");
+
+        return sb.toString();
     }
 
     @Override
@@ -48,5 +69,36 @@ public class TensorflowResult {
         return "TensorflowResult{" +
                 "output=" + Arrays.toString(output) +
                 '}';
+    }
+
+    private List<SortData> sort(){
+        List<SortData> list = new ArrayList<>();
+
+        for(int i=0;i<output.length;i++){
+            SortData data = new SortData();
+            data.index = i;
+            data.accuracy = output[i];
+            list.add(data);
+        }
+
+        Collections.sort(list);
+        return list;
+    }
+
+    class SortData implements Comparable<SortData>{
+        int index;
+        float accuracy;
+
+        @Override
+        public int compareTo(SortData sortData) {
+            if (accuracy == sortData.accuracy) {
+                return 0;
+            }
+            if (accuracy < sortData.accuracy) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
     }
 }

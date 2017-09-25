@@ -43,16 +43,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
             @Override
             public void onClick(View view) {
                 try {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inPreferredConfig = Bitmap.Config.ALPHA_8;
-
                     mCurrentBitmap28x28 = mPaletteView.buildBitmap();
 
                     mImagePreview.setImageBitmap(mCurrentBitmap28x28);
 
                     String charString = mDetector.decodeBitmap(mCurrentBitmap28x28);
 
-                    mTextView.setText(String.format("= %s", charString));
+                    mTextView.setText(charString);
                 } catch (Exception e) {
                     e.printStackTrace();
                     mTextView.setText(e.getMessage());
