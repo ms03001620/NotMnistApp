@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final String NOTMNIST_MODEL_FILE = "file:///android_asset/not-mnist-a-j-tf1.2_9718.pb";
 
     private TensorFlowDetector mDetector;
@@ -26,8 +26,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTextView = (TextView)findViewById(R.id.text);
-        mPaletteView = (PaletteView)findViewById(R.id.palette);
+        mTextView = (TextView) findViewById(R.id.text);
+        mPaletteView = (PaletteView) findViewById(R.id.palette);
         mImagePreview = (ImageView) findViewById(R.id.image_preview);
 
         findViewById(R.id.undo).setOnClickListener(this);
@@ -59,17 +59,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if(mCurrentBitmap28x28!=null){
+                if (mCurrentBitmap28x28 != null) {
                     saveBitmap(mCurrentBitmap28x28, "");
                 }
                 return false;
             }
         });
 
-        mDetector = TensorFlowDetector.create(getAssets(), NOTMNIST_MODEL_FILE, 28, "input", "out_softmax");
+        mDetector = TensorFlowDetector.create(
+                getAssets(),
+                NOTMNIST_MODEL_FILE,
+                28,
+                "input",
+                "out_softmax");
     }
 
-    private void saveBitmap(Bitmap bmp, String filename){
+    private void saveBitmap(Bitmap bmp, String filename) {
         //adb pull /data/data/com.example.mark.loadtensorflowmodeltest/files .
 
         File file = getFilesDir();

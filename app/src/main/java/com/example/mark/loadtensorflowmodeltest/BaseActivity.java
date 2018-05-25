@@ -12,7 +12,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
  * Created by mark on 2017/10/10.
  */
 
-public class BaseActivity extends Activity{
+public class BaseActivity extends Activity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
@@ -20,12 +20,8 @@ public class BaseActivity extends Activity{
 
     protected void logEventClickFeed() {
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(getApplicationContext());
-        if (firebaseAnalytics != null) {
-            Bundle params = new Bundle();
-            params.putInt("count", 1);
-            firebaseAnalytics.logEvent("click_feed", params);
-        } else {
-            Log.e("BaseActivity", "FirebaseAnalytics not init");
-        }
+        Bundle params = new Bundle();
+        params.putInt("count", 1);
+        firebaseAnalytics.logEvent("click_feed", params);
     }
 }
