@@ -1,5 +1,6 @@
 package com.example.mark.loadtensorflowmodeltest;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
@@ -13,7 +14,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener {
     private static final String NOTMNIST_MODEL_FILE = "file:///android_asset/not-mnist-a-j-tf1.2_9718.pb";
 
     private TensorFlowDetector mDetector;
@@ -40,7 +41,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                logEventClickFeed();
                 try {
                     mCurrentBitmap28x28 = mPaletteView.buildBitmap();
 
